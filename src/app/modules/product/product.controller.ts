@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request, Response } from 'express';
+import { ERROR, SUCCESS } from '../shared/api.response.types';
 import { productSchema } from './product.schema';
 import { ProductServices } from './product.service';
-import { ERROR, SUCCESS } from '../shared/api.response.types';
 
 const createProduct = async (req: Request, res: Response) => {
   try {
@@ -12,8 +13,6 @@ const createProduct = async (req: Request, res: Response) => {
     const productData = validationResult.data;
     const product = await ProductServices.createProductIntoDB(productData);
     SUCCESS(res, 'Product Created Successfully', product);
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     ERROR(res, 'Failed to create Product', [error.message]);
   }
@@ -22,15 +21,30 @@ const createProduct = async (req: Request, res: Response) => {
 const getAllProducts = async (_req: Request, res: Response) => {
   try {
     const products = await ProductServices.getAllProductsFromDB();
-     SUCCESS(res, 'All Products retrieved Successfully', products);    
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error:any) {
-        ERROR(res, 'Failed to get Products', [error.message]);
+    SUCCESS(res, 'All Products retrieved Successfully', products);
+  } catch (error: any) {
+    ERROR(res, 'Failed to get Products', [error.message]);
   }
 };
 
+const getProductById = async (req: Request, res: Response) => {
+  try {
+    const product = await ProductServices.getProductByIdFromDB(
+      req.params.productId,
+    );
+
+    if (product) {
+      SUCCESS(res, 'Product get Successfully', product);
+    } else {
+      SUCCESS(res, 'Product not found');
+    }
+  } catch (error: any) {
+    ERROR(res, 'Failed to get Product', [error.message], 500);
+  }
+};
 
 export const ProductControllers = {
   createProduct,
   getAllProducts,
+  getProductById,
 };
