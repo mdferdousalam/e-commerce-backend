@@ -1,6 +1,6 @@
-import ProductModel from "../product/product.model";
-import { IOrder } from "./order.interface";
-import { OrderModel } from "./order.model";
+import ProductModel from '../product/product.model';
+import { IOrder } from './order.interface';
+import { OrderModel } from './order.model';
 
 const createOrderIntoDB = async (orderData: IOrder) => {
   const product = await ProductModel.findById(orderData.productId);
@@ -8,10 +8,10 @@ const createOrderIntoDB = async (orderData: IOrder) => {
   if (!product) {
     throw new Error('Product is not available in inventory');
   }
-    
-     if ( product.inventory.quantity < orderData.quantity) {
-       throw new Error('Insufficient quantity available in inventory');
-     }
+
+  if (product.inventory.quantity < orderData.quantity) {
+    throw new Error('Insufficient quantity available in inventory');
+  }
 
   const order = new OrderModel(orderData);
   await order.save();
