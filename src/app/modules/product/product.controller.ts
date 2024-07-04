@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 import { ERROR, SUCCESS } from '../shared/api.response.types';
 import { productSchema } from './product.schema';
 import { ProductServices } from './product.service';
+import { IProduct } from './product.interface';
 
 const createProduct = async (req: Request, res: Response) => {
   try {
@@ -43,8 +44,31 @@ const getProductById = async (req: Request, res: Response) => {
   }
 };
 
+const updateProduct = async (req: Request, res: Response) => {
+  try {
+    const validationResult = productSchema.partial().safeParse(req.body);
+    if (!validationResult.success) {
+      return res.status(400).json(validationResult.error);
+    }
+
+    const productData = validationResult.data;
+    const product = await ProductServices.updateProductIntoDB(
+      req.params.productId,
+      productData as IProduct,
+    );
+    if (!product) {
+      SUCCESS(res, 'Product not found');
+    } else {
+      SUCCESS(res, 'Product updated successfully', product);
+    }
+  } catch (error: any) {
+    ERROR(res, 'Failed to update Product', [error.message], 500);
+  }
+};
+
 export const ProductControllers = {
   createProduct,
   getAllProducts,
   getProductById,
+  updateProduct,
 };
