@@ -19,6 +19,18 @@ const createProduct = async (req: Request, res: Response) => {
   }
 };
 
+const getAllProducts = async (_req: Request, res: Response) => {
+  try {
+    const products = await ProductServices.getAllProductsFromDB();
+     SUCCESS(res, 'All Products retrieved Successfully', products);    
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error:any) {
+        ERROR(res, 'Failed to get Products', [error.message]);
+  }
+};
+
+
 export const ProductControllers = {
   createProduct,
+  getAllProducts,
 };
