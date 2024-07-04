@@ -7,4 +7,4 @@ const orderSchema = new Schema({
   quantity: { type: Number, required: true },
 });
 
-export const Order = model('Order', orderSchema);
+export const OrderModel = model('Order', orderSchema);
