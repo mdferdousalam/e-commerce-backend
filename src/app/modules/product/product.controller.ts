@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request, Response } from 'express';
 import { ERROR, SUCCESS } from '../shared/api.response.types';
+import { IProduct } from './product.interface';
 import { productSchema } from './product.schema';
 import { ProductServices } from './product.service';
-import { IProduct } from './product.interface';
 
 const createProduct = async (req: Request, res: Response) => {
   try {
@@ -19,10 +19,22 @@ const createProduct = async (req: Request, res: Response) => {
   }
 };
 
-const getAllProducts = async (_req: Request, res: Response) => {
+const getAllProducts = async (req: Request, res: Response) => {
   try {
-    const products = await ProductServices.getAllProductsFromDB();
-    SUCCESS(res, 'All Products retrieved Successfully', products);
+    const searchTerm = req.query.searchTerm;
+    if (searchTerm) {
+      const products = await ProductServices.searchProductsFromDB(
+        searchTerm as string,
+      );
+      SUCCESS(
+        res,
+        `Searched Products ${searchTerm} retrieved Successfully`,
+        products,
+      );
+    } else {
+      const products = await ProductServices.getAllProductsFromDB();
+      SUCCESS(res, 'All Products retrieved Successfully', products);
+    }
   } catch (error: any) {
     ERROR(res, 'Failed to get Products', [error.message]);
   }
@@ -66,9 +78,25 @@ const updateProduct = async (req: Request, res: Response) => {
   }
 };
 
+const deleteProduct = async (req: Request, res: Response) => {
+  try {
+    const product = await ProductServices.deleteProductFromDB(
+      req.params.productId,
+    );
+    if (!product) {
+      SUCCESS(res, 'Product not found');
+    } else {
+      SUCCESS(res, 'Product Deleted successfully');
+    }
+  } catch (error: any) {
+    ERROR(res, 'Failed to update Product', [error.message], 500);
+  }
+};
+
 export const ProductControllers = {
   createProduct,
   getAllProducts,
   getProductById,
   updateProduct,
+  deleteProduct,
 };
